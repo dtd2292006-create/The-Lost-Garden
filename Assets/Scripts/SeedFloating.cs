@@ -4,31 +4,24 @@ public class SeedFloating : MonoBehaviour
 {
     [SerializeField] private float floatingSpeed = 2f;
     [SerializeField] private float floatingHeight = 0.15f;
-    [SerializeField] private float rotationSpeed = 80f;
 
-    private Vector3 startPosition;
+    private Vector3 startLocalPosition;
+    private float phaseOffset;
 
-    private void Start()
+    private void Awake()
     {
-        startPosition = transform.position;
+        startLocalPosition = transform.localPosition;
+        phaseOffset = Random.Range(0f, Mathf.PI * 2f);
     }
 
     private void Update()
     {
-        float newY =
-            startPosition.y +
-            Mathf.Sin(Time.time * floatingSpeed) * floatingHeight;
+        Vector3 newPosition = startLocalPosition;
 
-        transform.position = new Vector3(
-            startPosition.x,
-            newY,
-            startPosition.z
-        );
+        newPosition.y += Mathf.Sin(
+            Time.time * floatingSpeed + phaseOffset
+        ) * floatingHeight;
 
-        transform.Rotate(
-            0f,
-            0f,
-            rotationSpeed * Time.deltaTime
-        );
+        transform.localPosition = newPosition;
     }
 }

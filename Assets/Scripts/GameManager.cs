@@ -1,15 +1,32 @@
 using UnityEngine;
-using TMPro;
+using System;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    [SerializeField] private int totalSeeds = 1;
-    [SerializeField] private TMP_Text statusText;
+    [SerializeField] private int totalSeeds = 8;
 
     private int collectedSeeds;
-    private bool levelCompleted;
+    private bool gateUnlocked;
+
+    public int CollectedSeeds
+    {
+        get { return collectedSeeds; }
+    }
+
+    public int TotalSeeds
+    {
+        get { return totalSeeds; }
+    }
+
+    public bool GateUnlocked
+    {
+        get { return gateUnlocked; }
+    }
+
+    public event Action<int, int> OnSeedCountChanged;
+    public event Action OnGateUnlocked;
 
     private void Awake()
     {
@@ -20,81 +37,49 @@ public class GameManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
+            return;
         }
     }
 
     private void Start()
     {
         collectedSeeds = 0;
-        levelCompleted = false;
+        gateUnlocked = false;
 
-        SetupStatusText();
-        UpdateUI();
-    }
-
-    private void SetupStatusText()
-    {
-        if (statusText == null)
-        {
-            Debug.LogError("Chưa gắn StatusText vào GameManager!");
-            return;
-        }
-
-        statusText.gameObject.SetActive(true);
-
-        RectTransform rect = statusText.rectTransform;
-
-        rect.anchorMin = new Vector2(0f, 1f);
-        rect.anchorMax = new Vector2(0f, 1f);
-        rect.pivot = new Vector2(0f, 1f);
-
-        rect.anchoredPosition = new Vector2(30f, -30f);
-        rect.sizeDelta = new Vector2(700f, 150f);
-        rect.localScale = Vector3.one;
-
-        statusText.fontSize = 32f;
-        statusText.color = Color.black;
-        statusText.alignment = TextAlignmentOptions.TopLeft;
-        statusText.enableWordWrapping = false;
+        OnSeedCountChanged?.Invoke(
+            collectedSeeds,
+            totalSeeds
+        );
     }
 
     public void CollectSeed(int amount)
     {
-        if (levelCompleted)
+        if (gateUnlocked)
             return;
 
         collectedSeeds += amount;
-        collectedSeeds = Mathf.Min(collectedSeeds, totalSeeds);
+        collectedSeeds = Mathf.Min(
+            collectedSeeds,
+            totalSeeds
+        );
+
+        OnSeedCountChanged?.Invoke(
+            collectedSeeds,
+            totalSeeds
+        );
 
         if (collectedSeeds >= totalSeeds)
         {
-            levelCompleted = true;
+            gateUnlocked = true;
+            OnGateUnlocked?.Invoke();
         }
-
-        UpdateUI();
     }
 
-    private void UpdateUI()
+    private void OnDestroy()
     {
-        if (statusText == null)
-            return;
-
-        if (levelCompleted)
+        if (Instance == this)
         {
-            statusText.text =
-                "Hạt sáng: " +
-                collectedSeeds +
-                " / " +
-                totalSeeds +
-                "\nĐã thu thập đủ hạt sáng!";
-        }
-        else
-        {
-            statusText.text =
-                "Hạt sáng: " +
-                collectedSeeds +
-                " / " +
-                totalSeeds;
+            Instance = null;
         }
     }
 }
