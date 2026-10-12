@@ -145,6 +145,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LightSeed
   value: 1
+  collectParticlePrefab: {fileID: 4323348998155939810, guid: b547723a1d535704192fc58bc6cecde3, type: 3}
+  collectSound: {fileID: 8300000, guid: b8091bb269ea6b542958bde3f05c7ac4, type: 3}
 --- !u!114 &8125762686790699456
 MonoBehaviour:
   m_ObjectHideFlags: 0
